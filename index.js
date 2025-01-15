@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 import isUtf8 from "isutf8";
 import { TypedDataUtils } from "eth-sig-util";
 
-class NovaWeb3Provider extends EventEmitter {
+class SuperWeb3Provider extends EventEmitter {
   constructor(config) {
     super();
     this.setConfig(config);
@@ -23,7 +23,7 @@ class NovaWeb3Provider extends EventEmitter {
     this.idMapping = new IdMapping();
     this.callbacks = new Map();
     this.wrapResults = new Map();
-    this.isNovaWallet = true;
+    this.isSuperWallet = true;
     this.isMetaMask = true;
     this.isDebug = !!config.isDebug;
   }
@@ -39,7 +39,7 @@ class NovaWeb3Provider extends EventEmitter {
     this.ready = !!address;
     for (var i = 0; i < window.frames.length; i++) {
       const frame = window.frames[i];
-      if (frame.ethereum && frame.ethereum.isNovaWallet) {
+      if (frame.ethereum && frame.ethereum.isSuperWallet) {
         frame.ethereum.address = lowerAddress;
         frame.ethereum.ready = !!address;
       }
@@ -79,7 +79,7 @@ class NovaWeb3Provider extends EventEmitter {
   request(payload) {
     // this points to window in methods like web3.eth.getAccounts()
     var that = this;
-    if (!(this instanceof NovaWeb3Provider)) {
+    if (!(this instanceof SuperWeb3Provider)) {
       that = window.ethereum;
     }
     return that._request(payload, false);
@@ -116,7 +116,7 @@ class NovaWeb3Provider extends EventEmitter {
       default:
         throw new ProviderRpcError(
           4200,
-          `Nova does not support calling ${payload.method} synchronously without a callback. Please provide a callback parameter to call ${payload.method} asynchronously.`
+          `Super does not support calling ${payload.method} synchronously without a callback. Please provide a callback parameter to call ${payload.method} asynchronously.`
         );
     }
     return response;
@@ -131,7 +131,7 @@ class NovaWeb3Provider extends EventEmitter {
     );
     // this points to window in methods like web3.eth.getAccounts()
     var that = this;
-    if (!(this instanceof NovaWeb3Provider)) {
+    if (!(this instanceof SuperWeb3Provider)) {
       that = window.ethereum;
     }
     if (Array.isArray(payload)) {
@@ -204,7 +204,7 @@ class NovaWeb3Provider extends EventEmitter {
         case "eth_subscribe":
           throw new ProviderRpcError(
             4200,
-            `Nova does not support calling ${payload.method}. Please use your own solution`
+            `Super does not support calling ${payload.method}. Please use your own solution`
           );
         default:
           // call upstream rpc
@@ -313,8 +313,8 @@ class NovaWeb3Provider extends EventEmitter {
         name: handler,
         object: data,
       };
-      if (window.novawallet.postMessage) {
-        window.novawallet.postMessage(object);
+      if (window.superwallet.postMessage) {
+        window.superwallet.postMessage(object);
       } else {
         // old clients
         window.webkit.messageHandlers[handler].postMessage(object);
@@ -408,8 +408,8 @@ class NovaWeb3Provider extends EventEmitter {
   }
 }
 
-window.novawallet = {
-  Provider: NovaWeb3Provider,
+window.superwallet = {
+  Provider: SuperWeb3Provider,
   Web3: Web3,
   postMessage: null,
 };
